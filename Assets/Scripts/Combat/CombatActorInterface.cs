@@ -9,5 +9,5 @@ public interface IKillable
 
 public interface IDamageable<T>
 {
-    void OnDamage(T damageTaken);
+    void OnDamageApplied(T damageTaken);
 }

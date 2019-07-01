@@ -55,6 +55,9 @@ public class MovementScript : MonoBehaviour
 
         //Store the current horizontal input in the float moveHorizontal.
         moveHorizontal = Input.GetAxis("Horizontal");
+        
+        //Debug.Log(moveHorizontal);
+        Debug.Log(Input.GetAxis("Jump"));
 
 
         //Store the current vertical input in the float moveVertical.

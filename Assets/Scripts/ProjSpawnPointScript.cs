@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ID_PlayerScript : MonoBehaviour
+public class ProjSpawnPointScript : MonoBehaviour
 {
-   
+  
 }
