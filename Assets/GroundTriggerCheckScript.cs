@@ -12,10 +12,10 @@ public class GroundTriggerCheckScript : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
     }
 
-    private void Start()
-    {
-        Debug.Log(LayerMask.GetMask("Ground"));
-    }
+    //private void Start()
+    //{
+    //    Debug.Log(LayerMask.GetMask("Ground"));
+    //}
 
     private void OnTriggerStay2D(Collider2D collision)
     {

@@ -14,13 +14,17 @@ public class MovementScript : MonoBehaviour
     private float moveVertical = 0.0f;
     private Animator GetAnimator;
     [SerializeField]
+    private bool bCanJump = false;
+    [SerializeField]
     private bool bIsJumping = false;
+    [SerializeField]
+    private bool bIsOnGround = false;
     [SerializeField]
     private int MaxJumpCount = 1;
     [SerializeField]
     private int CurrentJumpCount = 0;
-    private Vector2 lastGroundV2;
-    public Vector2 JumpApexV2;
+    //private Vector2 lastGroundV2;
+    //public Vector2 JumpApexV2;
 
     private GroundTriggerCheckScript GroundTriggerCheck;
 
@@ -40,11 +44,14 @@ public class MovementScript : MonoBehaviour
 
     private void FixedUpdate()
     {
-        GetAnimator.SetBool("IsOnGround?", GroundTriggerCheck.bIsOnGround);
-        GetAnimator.SetBool("IsInAir?", !GroundTriggerCheck.bIsOnGround);
+        bIsOnGround = GroundTriggerCheck.bIsOnGround;
+        GetAnimator.SetBool("IsOnGround?", bIsOnGround);
+        GetAnimator.SetBool("IsInAir?", !bIsOnGround);
+        GetAnimator.SetBool("IsJumping?", bIsJumping);
+
         CheckJumpState();
         CheckMovement();
-       
+
 
         //Store the current horizontal input in the float moveHorizontal.
         moveHorizontal = Input.GetAxis("Horizontal");
@@ -64,17 +71,29 @@ public class MovementScript : MonoBehaviour
             PlayerJump();
         }
 
-        
+
 
     }
 
     void CheckJumpState()
     {
-
+        if (CurrentJumpCount < MaxJumpCount && bIsOnGround)
+        {
+            bCanJump = true;
+        }
+        else
+        {
+            bCanJump = false;
+        }
         if (Input.GetButtonDown("Jump"))
         {
-            PlayerJump();
-            lastGroundV2 = transform.position;
+            if (bCanJump)
+            {
+                PlayerJump();
+
+                //lastGroundV2 = transform.position;
+            }
+
         }
         if (Input.GetButtonUp("Jump"))
         {
@@ -85,41 +104,41 @@ public class MovementScript : MonoBehaviour
 
     void PlayerJump()
     {
-        bIsJumping = GetAnimator.GetBool("IsJumping?");
-        
-        if (CurrentJumpCount < MaxJumpCount)
+        if (bCanJump)
         {
+            bIsJumping = true;
             CurrentJumpCount++;
-            GetAnimator.SetBool("IsJumping?", true);
-            
+            GetAnimator.SetBool("IsJumping?", bIsJumping);
             rb2d.AddForce(JumpHeight * halfSpeed);
         }
-        
-        //if (Vector2.Distance(lastGroundV2, JumpApexV2) >= 2)
-        //{
-        //    StopJump();
-        //    Debug.Log("Reached apex");
-        //}
+        else
+        {
+            StopJump();
+        }
     }
 
     void StopJump()
     {
-        GetAnimator.SetBool("IsJumping?", false);
+        if (bIsJumping)
+        {
+            bIsJumping = false;
+
+        }
         if (CurrentJumpCount >= MaxJumpCount)
         {
-            //GetAnimator.SetBool("IsOnGround?", true);
-            GetAnimator.SetBool("IsJumping?", false);
+            bIsJumping = false;
+            bCanJump = false;
         }
     }
 
     void CheckMovement()
     {
         GetAnimator.SetFloat("AnimSpeed", moveHorizontal);
-        if(moveHorizontal != 0 || moveVertical != 0)
+        if (moveHorizontal != 0 || moveVertical != 0)
         {
             GetAnimator.SetBool("IsIdle?", false);
         }
-       
+
         else
         {
             GetAnimator.SetBool("IsIdle?", true);
