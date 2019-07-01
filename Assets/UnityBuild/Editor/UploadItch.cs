@@ -14,9 +14,10 @@ public class UploadItch : BuildAction, IPostBuildPerPlatformAction
     private const string LINUX = "linux";
 
     [FilePath(false, true, "Path to butler.exe")]
-    public string pathToButlerExe = "";
-    public string nameOfItchUser = "";
-    public string nameOfItchGame = ""; 
+    public string pathToButlerExe = "G:" + "/" + "Games Library" + "/" + "itch" + "/" + "Butler";
+        
+    public string nameOfItchUser = "sleeplessstarlight";
+    public string nameOfItchGame = "ProjectEscape"; 
     public bool useGeneratedBuildVersion = false;
 
     [Header("Disable to capture error output for debugging.")]

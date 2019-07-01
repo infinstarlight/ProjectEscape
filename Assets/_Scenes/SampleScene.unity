@@ -284,7 +284,7 @@ GameObject:
   - component: {fileID: 559475713}
   - component: {fileID: 559475716}
   m_Layer: 8
-  m_Name: Square (1)
+  m_Name: LV_Block 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -353,7 +353,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: cdfac6ae4bdeaeb4a9c62dbab4de0d68, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 35b28aed74008c74d95f84ebf87fd3fb, type: 3}
   m_Color: {r: 0.509434, g: 0.18983625, b: 0.18983625, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -460,7 +460,7 @@ GameObject:
   - component: {fileID: 1181928390}
   - component: {fileID: 1181928393}
   m_Layer: 0
-  m_Name: Square
+  m_Name: LV_Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -529,7 +529,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: cdfac6ae4bdeaeb4a9c62dbab4de0d68, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 35b28aed74008c74d95f84ebf87fd3fb, type: 3}
   m_Color: {r: 0.509434, g: 0.18983625, b: 0.18983625, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -632,6 +632,59 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 73799694, guid: 82278fa9b4a319f40916a8c42ac3c55d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.0893
+      objectReference: {fileID: 0}
+    - target: {fileID: 1243206423872664500, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: projectileGO
+      value: 
+      objectReference: {fileID: 5934511650654297056, guid: 270d8aefb543eac44ae30676e8eee247,
+        type: 3}
+    - target: {fileID: 1243206423872664500, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: GetProjectile
+      value: 
+      objectReference: {fileID: 5302966483779808159, guid: 270d8aefb543eac44ae30676e8eee247,
+        type: 3}
+    - target: {fileID: 671560557461835237, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163623087076724499, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: projectileGO
+      value: 
+      objectReference: {fileID: 5934511650654297056, guid: 001cbcfe6625aa94f959c2853e905f19,
+        type: 3}
+    - target: {fileID: 8163623087076724499, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: GetProjectile
+      value: 
+      objectReference: {fileID: 5302966483779808159, guid: 001cbcfe6625aa94f959c2853e905f19,
+        type: 3}
+    - target: {fileID: 8163623087076724499, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: CurrentAmmo
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163623087076724499, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: MaxAmmo
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163623087076724499, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: AmmoConsumeAmount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163623087076724499, guid: 82278fa9b4a319f40916a8c42ac3c55d,
+        type: 3}
+      propertyPath: bShouldConsumeAmmo
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82278fa9b4a319f40916a8c42ac3c55d, type: 3}

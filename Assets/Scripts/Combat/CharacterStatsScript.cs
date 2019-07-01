@@ -15,9 +15,5 @@ public class CharacterStatsScript : MonoBehaviour
         CurrentHealth = MaxHealth;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    
 }

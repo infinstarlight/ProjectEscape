@@ -11,6 +11,7 @@ public class MovementScript : MonoBehaviour
     private SpriteRenderer GetSprite;
     private Rigidbody2D rb2d;
     private float moveHorizontal = 0.0f;
+    private SpriteRenderer Sprite;
     private float moveVertical = 0.0f;
     private Animator GetAnimator;
     [SerializeField]
@@ -27,14 +28,17 @@ public class MovementScript : MonoBehaviour
     //public Vector2 JumpApexV2;
 
     private GroundTriggerCheckScript GroundTriggerCheck;
+    private ProjSpawnPointScript ProjSpawn;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        Sprite = GetComponent<SpriteRenderer>();
         CurrentJumpCount = 0;
         rb2d = GetComponent<Rigidbody2D>();
         GetSprite = GetComponent<SpriteRenderer>();
+        ProjSpawn = GetComponentInChildren<ProjSpawnPointScript>();
         GetAnimator = GetComponent<Animator>();
         CheckMovement();
         halfSpeed = Speed / 2f;
@@ -55,10 +59,8 @@ public class MovementScript : MonoBehaviour
 
         //Store the current horizontal input in the float moveHorizontal.
         moveHorizontal = Input.GetAxis("Horizontal");
-        
-        //Debug.Log(moveHorizontal);
-        Debug.Log(Input.GetAxis("Jump"));
 
+        
 
         //Store the current vertical input in the float moveVertical.
         moveVertical = Input.GetAxis("Vertical");
@@ -74,7 +76,15 @@ public class MovementScript : MonoBehaviour
             PlayerJump();
         }
 
-
+        if (Sprite.flipX)
+        {
+            ProjSpawn.gameObject.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+            
+        }
+        else
+        {
+            ProjSpawn.gameObject.transform.rotation = new Quaternion(0.0f, -180.0f, 0.0f, 0.0f);
+        }
 
     }
 
