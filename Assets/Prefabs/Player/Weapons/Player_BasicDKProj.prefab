@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5302966483779808159}
   - component: {fileID: -422997084129013858}
   m_Layer: 0
-  m_Name: TestProjectile
+  m_Name: Player_BasicDKProj
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -71,8 +71,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: e0933db4222e31d44a4ce2e814db93af, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 2b92133be5172a04195c7900159f29a5, type: 3}
+  m_Color: {r: 0.620317, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -115,9 +115,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 509c5cfbac915fc4a9725a45acb00cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BaseDamageAmount: 0
+  BaseDamageAmount: 10
   DamageModifierAmount: 0
-  thrust: 2
+  ProjDestructDelay: 1
+  thrust: 3
+  hitTarget: {fileID: 0}
 --- !u!58 &-422997084129013858
 CircleCollider2D:
   m_ObjectHideFlags: 0

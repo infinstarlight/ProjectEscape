@@ -7,6 +7,7 @@ public class CharacterStatsScript : MonoBehaviour
 
     public float CurrentHealth = 0.0f;
     public float MaxHealth = 100.0f;
+    public bool bIsDead = false;
 
 
     // Start is called before the first frame update

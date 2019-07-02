@@ -7,6 +7,7 @@ public class Character : MonoBehaviour,IKillable,IDamageable<float>
     public CharacterStatsScript CharacterStats;
     private AudioSource source;
     public AudioClip[] hurtClips;
+    public AudioClip deathClip;
 
     private void Awake()
     {
@@ -32,12 +33,25 @@ public class Character : MonoBehaviour,IKillable,IDamageable<float>
 
     public void OnDeath()
     {
-
+        if(CharacterStats.bIsDead)
+        {
+            source.clip = deathClip;
+            source.PlayOneShot(source.clip);
+            Destroy(gameObject, 2f);
+        }
+        
     }
 
     public void OnDamageApplied(float damageTaken)
     {
         CharacterStats.CurrentHealth -= damageTaken;
         source.clip = hurtClips[Random.Range(0, 3)];
+        source.PlayOneShot(source.clip);
+        if(CharacterStats.CurrentHealth <= 0)
+        {
+            CharacterStats.bIsDead = true;
+            OnDeath();
+            
+        }
     }
 }

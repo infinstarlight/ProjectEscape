@@ -8,16 +8,19 @@ public class Projectile : MonoBehaviour
     public float BaseDamageAmount = 0;
     public float DamageModifierAmount = 0;
     private float TotalDamageAmount = 0;
+    public float ProjDestructDelay = 0f;
 
     private Rigidbody2D RB;
     public float thrust;
-    private GameObject player;
-    private GameObject hitTarget;
+    //private GameObject player;
+    private Weapon GetWeapon;
+    public GameObject hitTarget;
 
     private void Awake()
     {
-        player = FindObjectOfType<Player>().gameObject;
+       // player = FindObjectOfType<Player>().gameObject;
         RB = GetComponent<Rigidbody2D>();
+        GetWeapon = GetComponentInParent<Weapon>();
     }
     // Start is called before the first frame update
     void Start()
@@ -30,11 +33,11 @@ public class Projectile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        DestroyProjectile(3f);
+        DestroyProjectile(ProjDestructDelay);
 
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log(collision.gameObject);
         //if(collision.gameObject != player)
@@ -43,8 +46,21 @@ public class Projectile : MonoBehaviour
         //}
         if(collision.gameObject.GetComponent<Character>() != null)
         {
+          //  if(GetWeapon)
             hitTarget = collision.gameObject;
             hitTarget.GetComponent<Character>().OnDamageApplied(TotalDamageAmount);
+            DestroyProjectile(0f);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(other.gameObject);
+        if(other.gameObject.GetComponent<Character>() != null)
+        {
+            hitTarget = other.gameObject;
+            hitTarget.GetComponent<Character>().OnDamageApplied(TotalDamageAmount);
+            DestroyProjectile(0f);
         }
     }
 
@@ -52,5 +68,10 @@ public class Projectile : MonoBehaviour
     void DestroyProjectile(float DestroyDelay)
     {
         Destroy(gameObject, DestroyDelay);
+    }
+
+    private void OnDestroy()
+    {
+        
     }
 }
