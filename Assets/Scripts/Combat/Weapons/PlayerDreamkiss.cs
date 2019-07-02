@@ -7,17 +7,18 @@ public class PlayerDreamkiss : Weapon
     
    public enum SpecialAbility {Catcher, Spark, Booster };
     public SpecialAbility currentSpecialAbility;
-
+    private PlayerStatsScript StatsScript;
     private void DreamKissAwake()
     {
         base.Awake();
         InitalizeAmmo(15, 15, true, 1);
+        
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        StatsScript = FindObjectOfType<PlayerStatsScript>();
     }
 
     // Update is called once per frame
@@ -26,8 +27,8 @@ public class PlayerDreamkiss : Weapon
         if (Input.GetButtonDown("Fire2"))
         {
             ShootProjectile();
-
-            Debug.Log("Dreamkiss!");
+            StatsScript.UpdateAmmoText();
+            //Debug.Log("Dreamkiss!");
         }
     }
 }

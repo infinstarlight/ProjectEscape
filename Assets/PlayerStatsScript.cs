@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerStatsScript : MonoBehaviour
 {
     private ID_HealthText healthText;
+    private DK_AmmoTextScript DK_AmmoText;
     private PlayerInstrument playerInstrument;
     private PlayerDreamkiss playerDreamkiss;
     private CharacterStatsScript playerStats;
@@ -12,6 +13,7 @@ public class PlayerStatsScript : MonoBehaviour
     private void Awake()
     {
         healthText = FindObjectOfType<ID_HealthText>();
+        DK_AmmoText = FindObjectOfType<DK_AmmoTextScript>();
         playerInstrument = FindObjectOfType<PlayerInstrument>();
         playerDreamkiss = FindObjectOfType<PlayerDreamkiss>();
         playerStats = GetComponent<CharacterStatsScript>();
@@ -21,6 +23,7 @@ public class PlayerStatsScript : MonoBehaviour
     void Start()
     {
         UpdateHealthText();
+        UpdateAmmoText();
     }
 
     // Update is called once per frame
@@ -36,6 +39,6 @@ public class PlayerStatsScript : MonoBehaviour
 
     public void UpdateAmmoText()
     {
-
+        DK_AmmoText.TextMesh.text = playerDreamkiss.CurrentAmmo.ToString();
     }
 }
