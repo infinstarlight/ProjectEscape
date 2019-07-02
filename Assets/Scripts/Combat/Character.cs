@@ -9,7 +9,7 @@ public class Character : MonoBehaviour,IKillable,IDamageable<float>
     public AudioClip[] hurtClips;
     public AudioClip deathClip;
 
-    private void Awake()
+    public void Awake()
     {
         CharacterStats = GetComponentInChildren<CharacterStatsScript>();
         source = GetComponent<AudioSource>();

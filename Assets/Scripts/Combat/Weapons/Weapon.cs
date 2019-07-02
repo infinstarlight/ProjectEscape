@@ -1,25 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour
 {
-    
+    private AudioSource source;
     public GameObject projectileGO;
     public Projectile GetProjectile;
-    public GameObject spawnPoint;
+    private GameObject spawnPoint;
     
     public bool bHasAmmo = false;
     public bool bCanFire = false;
     public int CurrentAmmo = 0;
     public int MaxAmmo = 0;
     public int AmmoConsumeAmount = 0;
-    public bool bShouldConsumeAmmo;
+    public bool bShouldConsumeAmmo = false;
+
+    public AudioClip FireClip;
+    public AudioClip EmptyClip;
 
 
+    //private Character GetCharacter;
 
     public void Awake()
     {
+        source = GetComponent<AudioSource>();
         if(projectileGO == null)
         {
             Debug.LogError(gameObject.name + " Has no Projectile!");
@@ -33,20 +38,19 @@ public class Weapon : MonoBehaviour
     {
         
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void ShootProjectile()
     {
         if(projectileGO != null)
         {
-            Instantiate(projectileGO, spawnPoint.transform.position,spawnPoint.transform.rotation);
+            Instantiate(projectileGO, spawnPoint.transform.position, spawnPoint.transform.rotation);
+            
             ConsumeAmmo();
             CheckAmmo();
+            if(source.clip != FireClip)
+            {
+                source.clip = FireClip;
+            }
+            source.PlayOneShot(source.clip);
         }
     }
 

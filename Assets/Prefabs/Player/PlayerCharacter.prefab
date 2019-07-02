@@ -113,8 +113,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1684572054}
   - component: {fileID: 1684572055}
+  - component: {fileID: 3150511}
   m_Layer: 0
-  m_Name: StatsObject
+  m_Name: PlayerStatsObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,6 +150,18 @@ MonoBehaviour:
   CurrentHealth: 0
   MaxHealth: 100
   bIsDead: 0
+--- !u!114 &3150511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684572053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46250ac1f5bb57c4799c1d04ad5cd12d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1380501260299311717
 GameObject:
   m_ObjectHideFlags: 0
@@ -164,7 +177,6 @@ GameObject:
   - component: {fileID: 677658119}
   - component: {fileID: 677658121}
   - component: {fileID: 80136209}
-  - component: {fileID: 1232859537}
   m_Layer: 0
   m_Name: PlayerCharacter
   m_TagString: Player
@@ -338,20 +350,6 @@ MonoBehaviour:
   CharacterStats: {fileID: 0}
   hurtClips: []
   deathClip: {fileID: 0}
---- !u!114 &1232859537
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1380501260299311717}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27e9c37f2b55441458b543a332949760, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentProj: {fileID: 5934511650654297056, guid: 270d8aefb543eac44ae30676e8eee247,
-    type: 3}
 --- !u!1 &5801110591725662708
 GameObject:
   m_ObjectHideFlags: 0

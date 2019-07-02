@@ -9,11 +9,15 @@ public class CharacterStatsScript : MonoBehaviour
     public float MaxHealth = 100.0f;
     public bool bIsDead = false;
 
+    private void Awake()
+    {
+        CurrentHealth = MaxHealth;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        CurrentHealth = MaxHealth;
+        
     }
 
     

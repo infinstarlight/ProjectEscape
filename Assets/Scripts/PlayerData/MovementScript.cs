@@ -8,12 +8,13 @@ public class MovementScript : MonoBehaviour
     public float Speed = 0.0f;
     private float halfSpeed = 0.0f;
     public Vector2 JumpHeight = new Vector2(0f, 0f);
-    private SpriteRenderer GetSprite;
+    
     private Rigidbody2D rb2d;
     private float moveHorizontal = 0.0f;
-    private SpriteRenderer Sprite;
+    
     private float moveVertical = 0.0f;
     private Animator GetAnimator;
+    private bool bShouldFlip = false;
     [SerializeField]
     private bool bCanJump = false;
     [SerializeField]
@@ -24,9 +25,6 @@ public class MovementScript : MonoBehaviour
     private int MaxJumpCount = 1;
     [SerializeField]
     private int CurrentJumpCount = 0;
-    //private Vector2 lastGroundV2;
-    //public Vector2 JumpApexV2;
-
     private GroundTriggerCheckScript GroundTriggerCheck;
     private ProjSpawnPointScript ProjSpawn;
 
@@ -34,10 +32,10 @@ public class MovementScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Sprite = GetComponent<SpriteRenderer>();
+    
         CurrentJumpCount = 0;
         rb2d = GetComponent<Rigidbody2D>();
-        GetSprite = GetComponent<SpriteRenderer>();
+    
         ProjSpawn = GetComponentInChildren<ProjSpawnPointScript>();
         GetAnimator = GetComponent<Animator>();
         CheckMovement();
@@ -71,21 +69,21 @@ public class MovementScript : MonoBehaviour
         //Call the AddForce function of our Rigidbody2D rb2d supplying movement multiplied by speed to move our player.
         rb2d.AddForce(new Vector2(moveHorizontal, 0) * Speed);
 
+        Debug.Log(moveHorizontal);
+
         if (bIsJumping)
         {
             PlayerJump();
         }
 
-        if (Sprite.flipX)
+     if(moveHorizontal > 0 && !bShouldFlip)
         {
-            ProjSpawn.gameObject.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
-            
+            PlayerFlip();
         }
-        else
+     else if (moveHorizontal < 0 && bShouldFlip)
         {
-            ProjSpawn.gameObject.transform.rotation = new Quaternion(0.0f, -180.0f, 0.0f, 0.0f);
+            PlayerFlip();
         }
-
     }
 
     void CheckJumpState()
@@ -162,6 +160,13 @@ public class MovementScript : MonoBehaviour
             CurrentJumpCount = 0;
         }
 
+       
 
+    }
+
+    void PlayerFlip()
+    {
+        bShouldFlip = !bShouldFlip;
+        transform.Rotate(0.0f, 180.0f, 0.0f);
     }
 }

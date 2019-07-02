@@ -4,15 +4,23 @@ using UnityEngine;
 
 public class Player : Character
 {
+    private PlayerStatsScript PlayerStats;
+
+    private void PlayerAwake()
+    {
+        base.Awake();
+        PlayerStats = GetComponentInChildren<PlayerStatsScript>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
-    void Update()
+    public void PlayerDamageTaken(float damageTaken)
     {
-        
+        OnDamageApplied(damageTaken);
+        PlayerStats.UpdateHealthText();
     }
 }
