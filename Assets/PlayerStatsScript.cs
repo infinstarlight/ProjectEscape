@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class PlayerStatsScript : MonoBehaviour
 {
+    public bool bDebugStats = false; 
     private ID_HealthText healthText;
     private DK_AmmoTextScript DK_AmmoText;
     private PlayerInstrument playerInstrument;
     private PlayerDreamkiss playerDreamkiss;
     private CharacterStatsScript playerStats;
+    private Player player;
 
     private void Awake()
     {
@@ -17,6 +19,7 @@ public class PlayerStatsScript : MonoBehaviour
         playerInstrument = FindObjectOfType<PlayerInstrument>();
         playerDreamkiss = FindObjectOfType<PlayerDreamkiss>();
         playerStats = GetComponent<CharacterStatsScript>();
+        player = GetComponentInParent<Player>();
     }
 
     // Start is called before the first frame update
@@ -29,7 +32,13 @@ public class PlayerStatsScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(bDebugStats)
+        {
+            if(Input.GetKeyDown(KeyCode.Slash))
+            {
+                player.PlayerDamageTaken(5.0f);
+            }
+        }
     }
 
     public void UpdateHealthText()

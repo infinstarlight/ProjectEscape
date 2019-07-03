@@ -9,13 +9,13 @@ public class Player : Character
     private void PlayerAwake()
     {
         base.Awake();
-        PlayerStats = GetComponentInChildren<PlayerStatsScript>();
+       
     }
 
     // Start is called before the first frame update
     void Start()
     {
-
+        PlayerStats = GetComponentInChildren<PlayerStatsScript>();
     }
 
     public void PlayerDamageTaken(float damageTaken)
