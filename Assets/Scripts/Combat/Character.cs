@@ -38,6 +38,7 @@ public class Character : MonoBehaviour,IKillable,IDamageable<float>
             source.clip = deathClip;
             source.PlayOneShot(source.clip);
             Destroy(gameObject, 2f);
+            //TODO: Disable player input on death
         }
         
     }

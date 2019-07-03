@@ -9,7 +9,7 @@ public class PlayerStatsScript : MonoBehaviour
     private DK_AmmoTextScript DK_AmmoText;
     private PlayerInstrument playerInstrument;
     private PlayerDreamkiss playerDreamkiss;
-    private CharacterStatsScript playerStats;
+    public CharacterStatsScript playerStats;
     private Player player;
 
     private void Awake()

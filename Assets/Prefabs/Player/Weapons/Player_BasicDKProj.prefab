@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BaseDamageAmount: 10
-  DamageModifierAmount: 0
+  DamageModifierAmount: 1
   ProjDestructDelay: 1
   thrust: 3
   hitTarget: {fileID: 0}

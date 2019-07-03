@@ -26,7 +26,7 @@ public class Projectile : MonoBehaviour
     void Start()
     {
         RB.velocity = (transform.right * thrust);
-        TotalDamageAmount = (BaseDamageAmount + (1 * DamageModifierAmount));
+        CalculateDamage();
         //Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), player.GetComponent<BoxCollider2D>());
     }
 
@@ -39,27 +39,18 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log(collision.gameObject);
-        //if(collision.gameObject != player)
-        //{
-        //    DestroyProjectile(0.0f);
-        //}
-        if(collision.gameObject.GetComponent<Character>() != null)
+       // Debug.Log(collision.gameObject);
+        //CalculateDamage();
+        if (collision.gameObject.GetComponent<Character>() != null)
         {
-          //  if(GetWeapon)
             hitTarget = collision.gameObject;
             hitTarget.GetComponent<Character>().OnDamageApplied(TotalDamageAmount);
             DestroyProjectile(0f);
         }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log(other.gameObject);
-        if(other.gameObject.GetComponent<Character>() != null)
+        if (collision.gameObject.GetComponent<Player>() != null)
         {
-            hitTarget = other.gameObject;
-            hitTarget.GetComponent<Character>().OnDamageApplied(TotalDamageAmount);
+            hitTarget = collision.gameObject;
+            hitTarget.GetComponent<Player>().PlayerDamageTaken(TotalDamageAmount);
             DestroyProjectile(0f);
         }
     }
@@ -68,6 +59,11 @@ public class Projectile : MonoBehaviour
     void DestroyProjectile(float DestroyDelay)
     {
         Destroy(gameObject, DestroyDelay);
+    }
+
+    void CalculateDamage()
+    {
+        TotalDamageAmount = (BaseDamageAmount + (1 * DamageModifierAmount));
     }
 
     private void OnDestroy()
