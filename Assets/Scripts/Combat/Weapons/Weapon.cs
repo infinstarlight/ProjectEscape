@@ -40,7 +40,7 @@ public class Weapon : MonoBehaviour
     }
     public void ShootProjectile()
     {
-        if(projectileGO != null)
+        if(projectileGO != null && bCanFire)
         {
             Instantiate(projectileGO, spawnPoint.transform.position, spawnPoint.transform.rotation);
             
