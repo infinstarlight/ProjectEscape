@@ -17,6 +17,7 @@ public class Weapon : MonoBehaviour
     public bool bShouldConsumeAmmo = false;
 
     public AudioClip FireClip;
+    public AudioClip DryClip;
     public AudioClip EmptyClip;
 
 
@@ -53,6 +54,14 @@ public class Weapon : MonoBehaviour
             if(source.clip != FireClip && FireClip != null)
             {
                 source.clip = FireClip;
+            }
+            source.PlayOneShot(source.clip);
+        }
+        if(!bCanFire)
+        {
+            if(DryClip != null)
+            {
+                source.clip = DryClip;
             }
             source.PlayOneShot(source.clip);
         }

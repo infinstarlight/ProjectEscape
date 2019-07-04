@@ -8,19 +8,23 @@ public class MovementScript : MonoBehaviour
     public float Speed = 0.0f;
     private float halfSpeed = 0.0f;
     public Vector2 JumpHeight = new Vector2(0f, 0f);
-    
+
     private Rigidbody2D rb2d;
     private float moveHorizontal = 0.0f;
-    
+
     private float moveVertical = 0.0f;
     private Animator GetAnimator;
     private bool bShouldFlip = false;
     [SerializeField]
     private bool bCanJump = false;
     [SerializeField]
+    private bool bCanMorph = false;
+    [SerializeField]
     private bool bIsJumping = false;
     [SerializeField]
     private bool bIsOnGround = false;
+    [SerializeField]
+    private bool bIsCrouching = false;
     [SerializeField]
     private int MaxJumpCount = 1;
     [SerializeField]
@@ -32,10 +36,10 @@ public class MovementScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-    
+
         CurrentJumpCount = 0;
         rb2d = GetComponent<Rigidbody2D>();
-    
+
         ProjSpawn = GetComponentInChildren<ProjSpawnPointScript>();
         GetAnimator = GetComponent<Animator>();
         CheckMovement();
@@ -47,9 +51,11 @@ public class MovementScript : MonoBehaviour
     private void FixedUpdate()
     {
         bIsOnGround = GroundTriggerCheck.bIsOnGround;
+        // bIsCrouching = !bIsCrouching;
         GetAnimator.SetBool("IsOnGround?", bIsOnGround);
         GetAnimator.SetBool("IsInAir?", !bIsOnGround);
         GetAnimator.SetBool("IsJumping?", bIsJumping);
+        GetAnimator.SetBool("IsCrouching?", bIsCrouching);
 
         CheckJumpState();
         CheckMovement();
@@ -58,7 +64,7 @@ public class MovementScript : MonoBehaviour
         //Store the current horizontal input in the float moveHorizontal.
         moveHorizontal = Input.GetAxis("Horizontal");
 
-        
+
 
         //Store the current vertical input in the float moveVertical.
         moveVertical = Input.GetAxis("Vertical");
@@ -69,18 +75,59 @@ public class MovementScript : MonoBehaviour
         //Call the AddForce function of our Rigidbody2D rb2d supplying movement multiplied by speed to move our player.
         rb2d.AddForce(new Vector2(moveHorizontal, 0) * Speed);
 
-        Debug.Log(moveHorizontal);
+        if (Input.GetButtonDown("Crouch"))
+        {
+
+            bIsCrouching = !bIsCrouching;
+            if (bIsCrouching)
+            {
+                if (!bCanMorph)
+                {
+                    bCanMorph = true;
+                }
+                else
+                {
+                    bCanMorph = false;
+                }
+            }
+
+
+        }
+        if (Input.GetButtonDown("Crouch") && bIsCrouching)
+        {
+            if (bCanMorph)
+            {
+                GetAnimator.SetBool("IsInAltForm?", bIsCrouching);
+            }
+
+        }
+
+        if (Input.GetButtonDown("MoveUp"))
+        {
+
+            bIsCrouching = false;
+
+
+        }
+
+        if (Input.GetButtonDown("MoveUp") && !bIsCrouching)
+        {
+            GetAnimator.SetBool("IsInAltForm?", false);
+
+        }
+
+
 
         if (bIsJumping)
         {
             PlayerJump();
         }
 
-     if(moveHorizontal > 0 && !bShouldFlip)
+        if (moveHorizontal > 0 && !bShouldFlip)
         {
             PlayerFlip();
         }
-     else if (moveHorizontal < 0 && bShouldFlip)
+        else if (moveHorizontal < 0 && bShouldFlip)
         {
             PlayerFlip();
         }
@@ -160,7 +207,7 @@ public class MovementScript : MonoBehaviour
             CurrentJumpCount = 0;
         }
 
-       
+
 
     }
 

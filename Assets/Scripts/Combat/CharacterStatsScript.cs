@@ -20,5 +20,9 @@ public class CharacterStatsScript : MonoBehaviour
         
     }
 
+    public void ModifyHealth(int ModAmount)
+    {
+        CurrentHealth += ModAmount;
+    }
     
 }

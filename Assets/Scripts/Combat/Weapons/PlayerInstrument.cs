@@ -27,7 +27,7 @@ public class PlayerInstrument : Weapon
         {
             ShootProjectile();
 
-            Debug.Log("Fire!");
+            //Debug.Log("Fire!");
         }
     }
 }

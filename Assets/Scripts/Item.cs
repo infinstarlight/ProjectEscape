@@ -4,18 +4,25 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
+    public int RecoverAmount = 0;
+    private Player GetPlayer;
 
-    
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
+        GetPlayer = FindObjectOfType<Player>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void RecoverHealth()
     {
-        
+        GetPlayer.CharacterStats.ModifyHealth(RecoverAmount);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.GetComponent<Player>() != null)
+        {
+            RecoverHealth();
+            Destroy(gameObject);
+        }
     }
 }

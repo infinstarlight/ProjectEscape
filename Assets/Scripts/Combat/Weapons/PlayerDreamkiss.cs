@@ -20,6 +20,7 @@ public class PlayerDreamkiss : Weapon
     {
         StatsScript = FindObjectOfType<PlayerStatsScript>();
         FireClip = Resources.Load<AudioClip>("SFX/Weapons/Player/DK_Fire");
+        DryClip = Resources.Load<AudioClip>("SFX/Weapons/Player/DK_Dry");
     }
 
     // Update is called once per frame

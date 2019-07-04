@@ -11,4 +11,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/_Scenes/TransitionTest/TT_Main.unity
+    guid: 05dab55e28236aa4b96d2a6d59d48e38
+  - enabled: 1
+    path: Assets/_Scenes/TransitionTest/TT_Main1.unity
+    guid: f9e7e1a8c9aace94797f755c08f3a5f4
+  - enabled: 1
+    path: Assets/_Scenes/TransitionTest/TT_Main2.unity
+    guid: e716893d60b3ab6489e7076b4c96b2f0
   m_configObjects: {}
