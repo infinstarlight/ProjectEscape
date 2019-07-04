@@ -30,13 +30,17 @@ public class Weapon : MonoBehaviour
             Debug.LogError(gameObject.name + " Has no Projectile!");
         }
         spawnPoint = GetComponentInChildren<ProjSpawnPointScript>().gameObject;
+     
         CheckAmmo();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+         if(FireClip != null)
+        {
+            source.clip = FireClip;
+        }
     }
     public void ShootProjectile()
     {
@@ -46,7 +50,7 @@ public class Weapon : MonoBehaviour
             
             ConsumeAmmo();
             CheckAmmo();
-            if(source.clip != FireClip)
+            if(source.clip != FireClip && FireClip != null)
             {
                 source.clip = FireClip;
             }
@@ -90,4 +94,5 @@ public class Weapon : MonoBehaviour
         AmmoConsumeAmount = ConsumeAmmout;
         bShouldConsumeAmmo = ShouldConsumeAmmo;
     }
+
 }
