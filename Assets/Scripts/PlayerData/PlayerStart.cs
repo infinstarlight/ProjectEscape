@@ -18,13 +18,14 @@ public class PlayerStart : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(playerGO)
+        if(!SceneManager.GetSceneByName("PersistentLevel").isLoaded)
+        {
+            SceneManager.LoadScene("PersistentLevel", LoadSceneMode.Additive);
+        }
+        if (playerGO)
         {
             Instantiate(playerGO, playerSpawnPoint);
-            SceneManager.LoadScene(LevelToLoad, LoadSceneMode.Additive);
-            //SceneManager.MoveGameObjectToScene(playerGO, SceneManager.GetActiveScene());
+          // SceneManager.LoadScene(LevelToLoad, LoadSceneMode.Additive);
         }
-        
-        
     }
 }

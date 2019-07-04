@@ -31,8 +31,8 @@ public class Player : Character
             userHUDGO = Instantiate(userHUDGO);
         }
         DontDestroyOnLoad(gameObject);
-        DontDestroyOnLoad(cameraGO);
-        DontDestroyOnLoad(userHUDGO);
+        //DontDestroyOnLoad(cameraGO);
+        //DontDestroyOnLoad(userHUDGO);
     }
 
     public void PlayerDamageTaken(float damageTaken)

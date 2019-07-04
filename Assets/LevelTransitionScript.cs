@@ -5,18 +5,17 @@ using UnityEngine;
 public class LevelTransitionScript : MonoBehaviour
 {
     public string NextLevelToLoad;
-    private string PreviousLevel;
+    public string PreviousLevel;
     // Start is called before the first frame update
     void Start()
     {
-        PreviousLevel = SceneManager.GetActiveScene().name;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        //if(SceneManager.GetActiveScene().name != "PersistentLevel")
+        //{
+        //    PreviousLevel = SceneManager.GetActiveScene().name;
+        //}
         
     }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

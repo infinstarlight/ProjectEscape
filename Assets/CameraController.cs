@@ -18,9 +18,18 @@ public class CameraController : MonoBehaviour
         offset = transform.position - player.transform.position;
     }
 
+    private void Update()
+    {
+       
+    }
+
     // LateUpdate is called after Update each frame
     void LateUpdate()
     {
+        if (player == null)
+        {
+            player = FindObjectOfType<Player>().gameObject;
+        }
         // Set the position of the camera's transform to be the same as the player's, but offset by the calculated offset distance.
         GetVector3 = player.transform.position + offset;
 
