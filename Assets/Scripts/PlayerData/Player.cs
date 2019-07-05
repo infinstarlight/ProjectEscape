@@ -21,7 +21,11 @@ public class Player : Character
     {
         PlayerStats = GetComponentInChildren<PlayerStatsScript>();
         animExplosive = FindObjectOfType<ID_AnimExplosive>();
-        animExplosive.gameObject.SetActive(false);
+        if(animExplosive)
+        {
+            animExplosive.gameObject.SetActive(false);
+        }
+        
         if(FindObjectOfType<CameraController>() == null)
         {
             cameraGO = Instantiate(cameraGO);

@@ -1,11 +1,18 @@
 fileFormatVersion: 2
 guid: 7cd97f7550099dc4793197e248d94de4
 ScriptedImporter:
-  fileIDToRecycleName:
-    11400000: _main
-    11400002: _superAsset
-    11400004: _icons
+  internalIDToNameTable:
+  - first:
+      114: 11400000
+    second: _main
+  - first:
+      114: 11400002
+    second: _superAsset
+  - first:
+      114: 11400004
+    second: _icons
   externalObjects: {}
+  serializedVersion: 2
   userData: 
   assetBundleName: 
   assetBundleVariant: 
@@ -14,8 +21,8 @@ ScriptedImporter:
   warnings: []
   missingSortingLayers: []
   missingLayers: []
-  version: 1.1.5
-  pixelsPerUnit: 100
+  version: 1.1.7
+  pixelsPerUnit: 1
   edgesPerEllipse: 32
   animationFramerate: 20
   defaultMaterial: {instanceID: 0}
