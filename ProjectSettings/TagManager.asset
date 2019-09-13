@@ -14,7 +14,7 @@ TagManager:
   - 
   - 
   - Ground
-  - 
+  - Geometry
   - 
   - 
   - 
@@ -43,4 +43,10 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 1659685493
+    locked: 0
+  - name: Geometry
+    uniqueID: 3079749167
+    locked: 0
+  - name: Background
+    uniqueID: 522407413
     locked: 0

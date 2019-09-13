@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -37,7 +36,8 @@ namespace SuperTiled2Unity.Editor
 
             // Add properties then sort the layer
             AddSuperCustomProperties(layerComponent.gameObject, xLayer.Element("properties"));
-            m_LayerSorterHelper.SortNewLayer(layerComponent);
+
+            RendererSorter.BeginTileLayer(layerComponent);
 
             // Process the data for the layer
             var xData = xLayer.Element("data");
@@ -45,6 +45,8 @@ namespace SuperTiled2Unity.Editor
             {
                 ProcessLayerData(layerComponent.gameObject, xData);
             }
+
+            RendererSorter.EndTileLayer(layerComponent);
 
             return layerComponent.gameObject;
         }
@@ -55,13 +57,15 @@ namespace SuperTiled2Unity.Editor
             Assert.IsNotNull(goLayer.GetComponent<SuperTileLayer>());
             Assert.IsNotNull(xData);
 
-            SuperTileLayer superComp = goLayer.GetComponent<SuperTileLayer>();
+            // Create the tilemap for the layer if needed
+            if (!m_TilesAsObjects)
+            {
+                GetOrAddTilemapComponent(goLayer);
+            }
 
             var chunk = new Chunk();
             chunk.Encoding = xData.GetAttributeAs<DataEncoding>("encoding");
             chunk.Compression = xData.GetAttributeAs<DataCompression>("compression");
-
-            bool tilesAsObjects = m_MapComponent.m_Orientation == MapOrientation.Isometric || m_TilesAsObjects;
 
             // Are we reading in data in smaller chunks (for infinite maps) or one big chunk (the full map)
             var xChunks = xData.Elements("chunk");
@@ -79,51 +83,11 @@ namespace SuperTiled2Unity.Editor
                     GameObject goChunk = new GameObject(string.Format("Chunk ({0},{1})", chunk.X, chunk.Y));
                     goLayer.AddChildWithUniqueName(goChunk);
 
-                    // Possition the chunk
-                    Vector3Int int3 = m_MapComponent.TilePositionToGridPosition(chunk.X, chunk.Y);
-                    Vector3 translate = SuperImportContext.MakePoint(int3.x, int3.y);
-                    translate.x *= m_MapComponent.m_TileWidth;
-                    translate.y *= m_MapComponent.m_TileHeight;
-
-                    goChunk.transform.localPosition = translate;
-
-                    // Create the tilemap for the layer if needed
-                    if (!tilesAsObjects)
-                    {
-                        var tilemap = goChunk.AddComponent<Tilemap>();
-                        tilemap.tileAnchor = Vector3.zero;
-                        tilemap.animationFrameRate = SuperImportContext.Settings.AnimationFramerate;
-                        tilemap.color = new Color(1, 1, 1, superComp.CalculateOpacity());
-
-                        // Create the renderer for the layer
-                        var renderer = goChunk.AddComponent<TilemapRenderer>();
-                        renderer.sortOrder = MapRenderConverter.Tiled2Unity(m_MapComponent.m_RenderOrder);
-                        AssignMaterial(renderer);
-                        AssignSortingLayer(renderer, superComp.m_SortingLayerName, superComp.m_SortingOrder);
-                    }
-
                     ProcessLayerDataChunk(goChunk, chunk);
                 }
             }
             else
             {
-                // Regular maps only have one chunk with the Tilemap and TileRenderer being on the layer object
-
-                // Add the tilemap components if needed
-                if (!tilesAsObjects)
-                {
-                    var tilemap = goLayer.AddComponent<Tilemap>();
-                    tilemap.tileAnchor = Vector3.zero;
-                    tilemap.animationFrameRate = SuperImportContext.Settings.AnimationFramerate;
-                    tilemap.color = new Color(1, 1, 1, superComp.CalculateOpacity());
-
-                    // Create the renderer for the layer
-                    var renderer = goLayer.AddComponent<TilemapRenderer>();
-                    renderer.sortOrder = MapRenderConverter.Tiled2Unity(m_MapComponent.m_RenderOrder);
-                    AssignMaterial(renderer);
-                    AssignSortingLayer(renderer, superComp.m_SortingLayerName, superComp.m_SortingOrder);
-                }
-
                 // For regular maps the 'chunk' is the same as the layer data
                 chunk.XmlChunk = xData;
                 chunk.X = 0;
@@ -135,6 +99,76 @@ namespace SuperTiled2Unity.Editor
             }
         }
 
+        private Tilemap GetOrAddTilemapComponent(GameObject go)
+        {
+            if (RendererSorter.IsUsingGroups())
+            {
+                // If we have a group layer parent then use it instead as we are grouping tiles on the same tilemap (using the z-component of the tile location)
+                var grouping = go.GetComponentInParent<SuperGroupLayer>();
+                if (grouping != null)
+                {
+                    // The Tilemap will go onto the group layer
+                    go = grouping.gameObject;
+                }
+            }
+
+            // If we already have a Tilemap component then use it
+            var tilemap = go.GetComponent<Tilemap>();
+            if (tilemap != null)
+            {
+                return tilemap;
+            }
+
+            tilemap = go.AddComponent<Tilemap>();
+            tilemap.tileAnchor = Vector2.zero;
+            tilemap.animationFrameRate = SuperImportContext.Settings.AnimationFramerate;
+
+            if (m_MapComponent.m_Orientation == MapOrientation.Hexagonal)
+            {
+                tilemap.orientation = Tilemap.Orientation.Custom;
+
+                float ox = SuperImportContext.MakeScalar(m_MapComponent.m_TileWidth) * 0.5f;
+                float oy = SuperImportContext.MakeScalar(m_MapComponent.m_TileHeight) * 0.5f;
+                tilemap.orientationMatrix = Matrix4x4.Translate(new Vector3(-ox, -oy));
+            }
+            else if (m_MapComponent.m_Orientation == MapOrientation.Isometric || m_MapComponent.m_Orientation == MapOrientation.Staggered)
+            {
+                tilemap.orientation = Tilemap.Orientation.Custom;
+
+                float ox = SuperImportContext.MakeScalar(m_MapComponent.m_TileWidth) * 0.5f;
+                tilemap.orientationMatrix = Matrix4x4.Translate(new Vector3(-ox, 0));
+            }
+
+
+            AddTilemapRendererComponent(go);
+
+            // Figure out our opacity
+            var layer = go.GetComponent<SuperLayer>();
+            tilemap.color = new Color(1, 1, 1, layer.CalculateOpacity());
+
+            return tilemap;
+        }
+
+        private TilemapRenderer AddTilemapRendererComponent(GameObject go)
+        {
+            var renderer = go.AddComponent<TilemapRenderer>();
+            renderer.sortOrder = MapRenderConverter.Tiled2Unity(m_MapComponent.m_RenderOrder);
+            AssignMaterial(renderer);
+            AssignTilemapSorting(renderer);
+
+#if UNITY_2018_3_OR_NEWER
+            if (m_SortingMode == SortingMode.CustomSortAxis)
+            {
+                renderer.mode = TilemapRenderer.Mode.Individual;
+            }
+            else
+            {
+                renderer.mode = TilemapRenderer.Mode.Chunk;
+            }
+#endif
+            return renderer;
+        }
+
         private void ProcessLayerDataChunk(GameObject goTilemap, Chunk chunk)
         {
             // Instantiate object to build all colliders for this chunk
@@ -143,7 +177,7 @@ namespace SuperTiled2Unity.Editor
             var tileIds = ReadTileIdsFromChunk(chunk);
             PlaceTiles(goTilemap, chunk, tileIds);
 
-            m_CurrentCollisionBuilder.Build();
+            m_CurrentCollisionBuilder.Build(this);
             m_CurrentCollisionBuilder = null;
         }
 
@@ -183,25 +217,22 @@ namespace SuperTiled2Unity.Editor
                 {
                     var tileId = new TileIdMath(utId);
 
-                    var cx = i % chunk.Width;
-                    var cy = i / chunk.Width;
-
-                    cx += chunk.X;
-                    cy += chunk.Y;
-
-                    // Y position is tricky. We want the origin to be the top-left corner
-                    Vector3Int int3 = m_MapComponent.TileIndexToGridPosition(i, chunk.Width);
-                    int3.y = -int3.y;
-                    int3.y -= 1;
+                    Vector3Int int3 = m_MapComponent.TiledIndexToGridCell(i, chunk.X, chunk.Y, chunk.Width);
 
                     SuperTile tile;
                     if (m_GlobalTileDatabase.TryGetTile(tileId.JustTileId, out tile))
                     {
+                        var cx = i % chunk.Width;
+                        var cy = i / chunk.Width;
+
+                        cx += chunk.X;
+                        cy += chunk.Y;
+
                         PlaceTile(goTilemap, cx, cy, tile, int3, tileId);
                     }
                     else if (!badTiles.Contains(tileId.JustTileId))
                     {
-                        ReportError("Could not find tile {0}. Your imported map will have holes until this is fixed.", tileId.JustTileId);
+                        ReportError("Could not find tile {0}. Make sure the tilesets were successfully imported.", tileId.JustTileId);
                         badTiles.Add(tileId.JustTileId);
                     }
                 }
@@ -210,16 +241,9 @@ namespace SuperTiled2Unity.Editor
 
         private void PlaceTile(GameObject goTilemap, int cx, int cy, SuperTile tile, Vector3Int pos3, TileIdMath tileId)
         {
-            // We're either placing tiles or objects as tiles
-            Assert.IsTrue(m_TilesAsObjects || m_MapComponent.m_Orientation == MapOrientation.Isometric || goTilemap.GetComponent<Tilemap>() != null);
-
-            // Bake transform flags into the z component (for flipped/rotated tiles)
-            pos3.z = tileId.PlacementZ;
-
-            bool tilesAsObjects = m_MapComponent.m_Orientation == MapOrientation.Isometric || m_TilesAsObjects;
-            if (tilesAsObjects)
+            if (m_TilesAsObjects)
             {
-                PlaceTileAsObject(goTilemap, tile, cx, cy, pos3);
+                PlaceTileAsObject(goTilemap, tile, cx, cy, tileId, pos3);
             }
             else
             {
@@ -227,7 +251,7 @@ namespace SuperTiled2Unity.Editor
             }
         }
 
-        private void PlaceTileAsObject(GameObject goTilemap, SuperTile tile, int cx, int cy, Vector3Int pos3)
+        private void PlaceTileAsObject(GameObject goTilemap, SuperTile tile, int cx, int cy, TileIdMath tileId, Vector3Int pos3)
         {
             Assert.IsNotNull(goTilemap.GetComponentInParent<SuperMap>());
             Assert.IsNotNull(goTilemap.GetComponentInParent<SuperLayer>());
@@ -263,16 +287,20 @@ namespace SuperTiled2Unity.Editor
             }
 
             Vector3 translate, rotate, scale;
-            tile.GetTRS((FlipFlags)pos3.z, out translate, out rotate, out scale);
+            tile.GetTRS(tileId.FlipFlags, m_MapComponent.m_Orientation, out translate, out rotate, out scale);
 
-            translate.x += pos3.x * superMap.CellSize.x;
-            translate.y += pos3.y * superMap.CellSize.y;
+            var cellPos = superMap.CellPositionToLocalPosition(pos3.x, pos3.y);
+            translate.x += cellPos.x;
+            translate.y += cellPos.y;
 
-            // If this is an isometric map than we have an additional translate to consider to place the tile
-            if (m_MapComponent.m_Orientation == MapOrientation.Isometric)
+            if (m_MapComponent.m_Orientation == MapOrientation.Isometric || m_MapComponent.m_Orientation == MapOrientation.Staggered)
             {
-                translate.x -= m_MapComponent.m_TileWidth * 0.5f * SuperImportContext.Settings.InversePPU;
-                translate.y -= m_MapComponent.m_TileHeight * 0.5f * SuperImportContext.Settings.InversePPU;
+                translate.x -= SuperImportContext.MakeScalar(m_MapComponent.m_TileWidth) * 0.5f;
+            }
+            else if (m_MapComponent.m_Orientation == MapOrientation.Hexagonal)
+            {
+                translate.x -= SuperImportContext.MakeScalar(m_MapComponent.m_TileWidth) * 0.5f;
+                translate.y -= SuperImportContext.MakeScalar(m_MapComponent.m_TileHeight) * 0.5f;
             }
 
             // Add the game object for the tile
@@ -285,7 +313,7 @@ namespace SuperTiled2Unity.Editor
             renderer.sprite = tile.m_Sprite;
             renderer.color = color;
             AssignMaterial(renderer);
-            AssignSortingLayer(renderer, superLayer.m_SortingLayerName, superLayer.m_SortingOrder);
+            AssignSpriteSorting(renderer);
 
             if (!tile.m_AnimationSprites.IsEmpty())
             {
@@ -300,11 +328,18 @@ namespace SuperTiled2Unity.Editor
 
         private void PlaceTileAsTile(GameObject goTilemap, SuperTile tile, TileIdMath tileId, Vector3Int pos3)
         {
-            var tilemap = goTilemap.GetComponent<Tilemap>();
+            // Burn our layer index into the z component of the tile position
+            // This allows us to support Tilemaps being shared by groups
+            pos3.z = RendererSorter.CurrentTileZ;
+
+            // Set the tile (sprite, transform matrix, flags)
+            var tilemap = goTilemap.GetComponentInParent<Tilemap>();
             tilemap.SetTile(pos3, tile);
+            tilemap.SetTransformMatrix(pos3, tile.GetTransformMatrix(tileId.FlipFlags, m_MapComponent.m_Orientation));
+            tilemap.SetTileFlags(pos3, TileFlags.LockAll);
 
             // Do we have any colliders on the tile to be gathered?
-            m_CurrentCollisionBuilder.PlaceTileColliders(tile, tileId, pos3);
+            m_CurrentCollisionBuilder.PlaceTileColliders(m_MapComponent, tile, tileId, pos3);
         }
 
         private void ReadTileIds_Xml(XElement xElement, ref List<uint> tileIds)
@@ -328,7 +363,7 @@ namespace SuperTiled2Unity.Editor
                 if (!String.IsNullOrEmpty(line))
                 {
                     var datum = from val in line.Split(',')
-                                where !String.IsNullOrEmpty(val)
+                                where !val.IsNullOrWhiteSpace()
                                 select Convert.ToUInt32(val);
 
                     tileIds.AddRange(datum);
@@ -347,11 +382,27 @@ namespace SuperTiled2Unity.Editor
             }
             else if (compression == DataCompression.Gzip)
             {
-                tileIds = data.Base64ToBytes().GzipDecompress().ToUInts().ToList();
+                try
+                {
+                    tileIds = data.Base64ToBytes().GzipDecompress().ToUInts().ToList();
+                }
+                catch
+                {
+                    tileIds.Clear();
+                    ReportError("Gzip compression is not supported on your development platform. Change Tile Layer Format to another type in Tiled.");
+                }
             }
             else if (compression == DataCompression.Zlib)
             {
-                tileIds = data.Base64ToBytes().ZlibDeflate().ToUInts().ToList();
+                try
+                {
+                    tileIds = data.Base64ToBytes().ZlibDeflate().ToUInts().ToList();
+                }
+                catch
+                {
+                    tileIds.Clear();
+                    ReportError("zlib compression is not supported on your development platform. Change Tile Layer Format to another type in Tiled.");
+                }
             }
             else
             {

@@ -8,6 +8,8 @@ public class Player : Character
     private ID_AnimExplosive animExplosive;
     private GameObject cameraGO;
     private GameObject userHUDGO;
+    private bool isStatsActive = false;
+    public GameObject statGO;
 
     private void PlayerAwake()
     {
@@ -54,5 +56,28 @@ public class Player : Character
         base.OnDeath();
       
         
+    }
+
+    private void Update()
+    {
+        if(Application.isEditor)
+        {
+            if(Input.GetKeyDown(KeyCode.Home))
+            {
+                if(!isStatsActive)
+                {
+                    var StatGO = Resources.Load<GameObject>("Prefabs/Debug/StatsMonitor") as GameObject;
+                    statGO = StatGO;
+                    Instantiate(statGO);
+                    isStatsActive = true;
+                }
+                
+                if (isStatsActive)
+                {
+                    Destroy(statGO);
+                }
+            }
+            
+        }
     }
 }

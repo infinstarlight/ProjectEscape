@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b8b92e1db1ed8483bbe80729d9fc2981
+guid: 803aac7500532004f8c06e44ed0b11a3
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -8,14 +8,21 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 1fa25d03934ea624a82bf2fcee6f0873, type: 3}
-  errors: []
+  missingFiles: []
+  errors:
+  - Errors detected in tileset 's4m_ur4i-metroidvania-1.3-high-contrast.tsx'. Check
+    the tileset inspector for more details. Your map may be broken until these are
+    fixed.
   warnings: []
   missingSortingLayers: []
   missingLayers: []
+  missingTags: []
+  importerVersion: 16
   pixelsPerUnit: 100
   edgesPerEllipse: 32
+  numberOfObjectsImported: 3
   tilesAsObjects: 0
-  importSorting: 0
+  sortingMode: 0
   isIsometric: 0
   customImporterClassName: 
   internalTilesets: []

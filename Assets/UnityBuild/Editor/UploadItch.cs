@@ -51,9 +51,9 @@ public class UploadItch : BuildAction, IPostBuildPerPlatformAction
             case BuildTarget.StandaloneOSXIntel64:
             case BuildTarget.StandaloneOSXUniversal:
 #endif
-            case BuildTarget.StandaloneLinux:
+            //case BuildTarget.StandaloneLinux:
             case BuildTarget.StandaloneLinux64:
-            case BuildTarget.StandaloneLinuxUniversal:
+            //case BuildTarget.StandaloneLinuxUniversal:
                 // Fix exe permissions for Linux/OSX.
                 scriptArguments.Append("--fix-permissions ");
                 break;
@@ -153,12 +153,12 @@ public class UploadItch : BuildAction, IPostBuildPerPlatformAction
                 return WINDOWS + "-x64";
 
             // Linux
-            case BuildTarget.StandaloneLinux:
-                return LINUX + "-x86";
+            //case BuildTarget.StandaloneLinux:
+               // return LINUX + "-x86";
             case BuildTarget.StandaloneLinux64:
                 return LINUX + "-x64";
-            case BuildTarget.StandaloneLinuxUniversal:
-                return LINUX + "-universal";
+            //case BuildTarget.StandaloneLinuxUniversal:
+                //return LINUX + "-universal";
 
             // OSX
 #if UNITY_2017_3_OR_NEWER

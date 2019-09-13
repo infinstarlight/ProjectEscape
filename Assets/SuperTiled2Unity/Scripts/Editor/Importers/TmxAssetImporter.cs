@@ -18,18 +18,19 @@ namespace SuperTiled2Unity.Editor
     public partial class TmxAssetImporter : TiledAssetImporter
     {
         private SuperMap m_MapComponent;
+        private Grid m_GridComponent;
+
         private GlobalTileDatabase m_GlobalTileDatabase;
         private Dictionary<uint, TilePolygonCollection> m_TilePolygonDatabase;
         private int m_ObjectIdCounter = 0;
-        private LayerSorterHelper m_LayerSorterHelper;
 
         [SerializeField]
         private bool m_TilesAsObjects = false;
         public bool TilesAsObjects { get { return m_TilesAsObjects; } }
 
         [SerializeField]
-        private ImportSorting m_ImportSorting = ImportSorting.Stacking;
-        public ImportSorting SortingOrder { get { return m_ImportSorting; } }
+        private SortingMode m_SortingMode = SortingMode.Stacked;
+        public SortingMode SortingMode { get { return m_SortingMode; } }
 
         [SerializeField]
         private bool m_IsIsometric = false;
@@ -44,15 +45,17 @@ namespace SuperTiled2Unity.Editor
         protected override void InternalOnImportAsset()
         {
             base.InternalOnImportAsset();
+            ImporterVersion = ImporterConstants.MapVersion;
             AddSuperAsset<SuperAssetMap>();
 
-            XDocument doc = XDocument.Load(this.assetPath);
+            XDocument doc = XDocument.Load(assetPath);
             if (doc != null)
             {
                 var xMap = doc.Element("map");
                 ProcessMap(xMap);
             }
 
+            DoPrefabReplacements();
             DoCustomImporting();
         }
 
@@ -64,12 +67,13 @@ namespace SuperTiled2Unity.Editor
 
             m_TilePolygonDatabase = new Dictionary<uint, TilePolygonCollection>();
             m_ObjectIdCounter = 0;
-            m_LayerSorterHelper = new LayerSorterHelper();
+            RendererSorter.SortingMode = m_SortingMode;
 
             // Create our map and fill it out
             bool success = true;
             success = success && PrepareMainObject();
             success = success && ProcessMapAttributes(xMap);
+            success = success && ProcessGridObject(xMap);
             success = success && ProcessTilesetElements(xMap);
 
             if (success)
@@ -77,18 +81,16 @@ namespace SuperTiled2Unity.Editor
                 // Custom properties need to be in place before we process the map layers
                 AddSuperCustomProperties(m_MapComponent.gameObject, xMap.Element("properties"));
 
-                // Create our main grid object and add the layers to it
-                ProcessMapLayers(m_MapComponent.gameObject, xMap);
-                SetLayerSortingOrders();
+                // Add layers to our grid object
+                ProcessMapLayers(m_GridComponent.gameObject, xMap);
             }
         }
 
         // The map object is our Main Asset - the prefab that is created in our scene when dragged into the hierarchy
         private bool PrepareMainObject()
         {
-            var icon = SuperImportContext.Icons.TmxIcon;
+            var icon = SuperIcons.GetTmxIcon();
 
-            // The Main Gameobject is our grid containing all the layers
             var goGrid = new GameObject("_MapMainObject");
             SuperImportContext.AddObjectToAsset("_MapPrfab", goGrid, icon);
             SuperImportContext.SetMainObject(goGrid);
@@ -120,13 +122,109 @@ namespace SuperTiled2Unity.Editor
             m_MapComponent.m_BackgroundColor = xMap.GetAttributeAsColor("backgroundcolor", NamedColors.Gray);
             m_MapComponent.m_NextObjectId = xMap.GetAttributeAs<int>("nextobjectid");
 
-            // Done reading in values from Xml. Update other properties that may have depended on those settings.
-            m_MapComponent.UpdateProperties(SuperImportContext);
-
-            var grid = m_MapComponent.gameObject.AddComponent<Grid>();
-            grid.cellSize = m_MapComponent.CellSize;
-
             m_IsIsometric = m_MapComponent.m_Orientation == MapOrientation.Isometric;
+
+            return true;
+        }
+
+        private bool ProcessGridObject(XElement xMap)
+        {
+            // Add the grid to the map
+            var goGrid = new GameObject("Grid");
+            goGrid.transform.SetParent(m_MapComponent.gameObject.transform);
+
+            // The grid is added to the asset because without it we get prefab modifications for all collision geometry and tile matrices
+            // Note: this is crashing Unity 2018.3. Unfortunately prefab instances will be fatter in those versions of Unity. :(
+#if UNITY_2019_1_OR_NEWER
+            SuperImportContext.AddObjectToAsset("_grid", goGrid);
+#endif
+
+            m_GridComponent = goGrid.AddComponent<Grid>();
+
+
+            // Grid cell size always has a z-value of 1 so that we can use custom axis sorting
+            float sx = SuperImportContext.MakeScalar(m_MapComponent.m_TileWidth);
+            float sy = SuperImportContext.MakeScalar(m_MapComponent.m_TileHeight);
+            m_GridComponent.cellSize = new Vector3(sx, sy, 1);
+            var localPosition = new Vector3(0, 0, 0);
+
+            switch (m_MapComponent.m_Orientation)
+            {
+#if UNITY_2018_3_OR_NEWER
+                case MapOrientation.Isometric:
+                    m_GridComponent.cellLayout = GridLayout.CellLayout.Isometric;
+                    localPosition = new Vector3(0, -sy, 0);
+                    break;
+
+                case MapOrientation.Staggered:
+                    m_GridComponent.cellLayout = GridLayout.CellLayout.Isometric;
+
+                    if (m_MapComponent.m_StaggerAxis == StaggerAxis.Y)
+                    {
+                        if (m_MapComponent.m_StaggerIndex == StaggerIndex.Odd)
+                        {
+                            localPosition = new Vector3(sx * 0.5f, -sy, 0);
+                        }
+                        else
+                        {
+                            localPosition = new Vector3(sx, -sy, 0);
+                        }
+                    }
+                    else if (m_MapComponent.m_StaggerAxis == StaggerAxis.X)
+                    {
+                        if (m_MapComponent.m_StaggerIndex == StaggerIndex.Odd)
+                        {
+                            localPosition = new Vector3(sx * 0.5f, -sy, 0);
+                        }
+                        else
+                        {
+                            localPosition = new Vector3(sx * 0.5f, -sy * 1.5f, 0);
+                        }
+                    }
+                    break;
+
+                case MapOrientation.Hexagonal:
+                    if (m_MapComponent.m_StaggerAxis == StaggerAxis.Y)
+                    {
+                        // Pointy-top hex maps
+                        m_GridComponent.cellLayout = GridLayout.CellLayout.Hexagon;
+                        m_GridComponent.cellSwizzle = GridLayout.CellSwizzle.XYZ;
+
+                        if (m_MapComponent.m_StaggerIndex == StaggerIndex.Odd)
+                        {
+                            localPosition = new Vector3(sx * 0.5f, sy * -0.5f, 0);
+                        }
+                        else
+                        {
+                            localPosition = new Vector3(sx * 0.5f, sy * 0.25f, 0);
+                        }
+                    }
+                    else if (m_MapComponent.m_StaggerAxis == StaggerAxis.X)
+                    {
+                        // Flat-top hex maps. Reverse x and y on size.
+                        m_GridComponent.cellLayout = GridLayout.CellLayout.Hexagon;
+                        m_GridComponent.cellSwizzle = GridLayout.CellSwizzle.YXZ;
+                        m_GridComponent.cellSize = new Vector3(sy, sx, 1);
+
+                        if (m_MapComponent.m_StaggerIndex == StaggerIndex.Odd)
+                        {
+                            localPosition = new Vector3(sx * -0.25f, -sy, 0);
+                        }
+                        else
+                        {
+                            localPosition = new Vector3(sx * 0.5f, -sy, 0);
+                        }
+                    }
+                    break;
+#endif
+                default:
+                    m_GridComponent.cellLayout = GridLayout.CellLayout.Rectangle;
+                    localPosition = new Vector3(0, -sy, 0);
+                    break;
+            }
+
+            m_GridComponent.transform.localPosition = localPosition;
+
             return true;
         }
 
@@ -174,6 +272,17 @@ namespace SuperTiled2Unity.Editor
             }
             else
             {
+                // Warn the user of mismatching pixels per units
+                if (PixelsPerUnit != tileset.m_PixelsPerUnit)
+                {
+                    ReportWarning("Pixels Per Unit mismatch between map ({0}) and tileset '{1}' ({2})", PixelsPerUnit, source, tileset.m_PixelsPerUnit);
+                }
+
+                if (tileset.m_HasErrors)
+                {
+                    ReportError("Errors detected in tileset '{0}'. Check the tileset inspector for more details. Your map may be broken until these are fixed.", source);
+                }
+
                 // Register all the tiles with the tile database for this map
                 m_GlobalTileDatabase.RegisterTileset(firstId, tileset);
             }
@@ -196,7 +305,7 @@ namespace SuperTiled2Unity.Editor
 
             // In the case of internal tilesets, only use an atlas if it will help with seams
             bool useAtlas = xTileset.Element("image") != null;
-            var loader = new TilesetLoader(tileset, this, useAtlas, 1024, 1024);
+            var loader = new TilesetLoader(tileset, this, useAtlas, 2048, 2048);
 
             if (loader.LoadFromXml(xTileset))
             {
@@ -237,44 +346,35 @@ namespace SuperTiled2Unity.Editor
             }
         }
 
-        private void SetLayerSortingOrders()
+        private void DoPrefabReplacements()
         {
-            // At this point in the importing all renderers are sorted in overhead style by default
-            // If we are stacking sorters instead then change sorting order as needed
-            // If a version of overhead sorting is still being used then make sure additional components are used to keep sorting intact
-
-            if (m_ImportSorting == ImportSorting.Stacking)
+            // Should any of our objects (from Tiled) be replaced by instantiated prefabs?
+            var supers = m_MapComponent.GetComponentsInChildren<SuperObject>();
+            foreach (var so in supers)
             {
-                // Renderers are sorted so that they stack on top of each other
-                // This resembles the drawing order we see in Tiled but might not work for overhead games
-                int count = 0;
-                var layers = m_MapComponent.GetComponentsInChildren<SuperLayer>().Where(l => l.GetType() != typeof(SuperGroupLayer));
-
-                foreach (var layer in layers)
+                var prefab = SuperImportContext.Settings.GetPrefabReplacement(so.m_Type);
+                if (prefab != null)
                 {
-                    var renderers = layer.GetComponentsInChildren<Renderer>().OrderBy(r => r.gameObject.transform.position.y).ThenByDescending(r => r.gameObject.transform.position.x);
-                    foreach (var renderer in renderers)
+                    // Replace the super object with the instantiated prefab
+                    var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                    instance.transform.SetParent(so.transform.parent);
+                    instance.transform.position = so.transform.position + prefab.transform.localPosition;
+                    instance.transform.rotation = so.transform.rotation;
+
+                    // Apply custom properties as messages to the instanced prefab
+                    var props = so.GetComponent<SuperCustomProperties>();
+                    if (props != null)
                     {
-                        renderer.sortingOrder = count++;
+                        foreach (var p in props.m_Properties)
+                        {
+                            instance.gameObject.BroadcastProperty(p);
+                        }
                     }
-                }
-            }
-            else if (m_ImportSorting == ImportSorting.OverheadStatic)
-            {
-                // All tile objects need to set their sorting on startup
-                var tileObjects = m_MapComponent.GetComponentsInChildren<SuperObject>().Where(so => so.GetComponentInChildren<SpriteRenderer>() != null);
-                foreach (var to in tileObjects)
-                {
-                    to.gameObject.AddComponent<OverheadSorterStatic>();
-                }
-            }
-            else if (m_ImportSorting == ImportSorting.OverheadDynamic)
-            {
-                // All tile objects need to check if they have been moved each frame in order to update their sort ordering
-                var tileObjects = m_MapComponent.GetComponentsInChildren<SuperObject>().Where(so => so.GetComponentInChildren<SpriteRenderer>() != null);
-                foreach (var to in tileObjects)
-                {
-                    to.gameObject.AddComponent<OverheadSorterDynamic>();
+
+                    // Keep the name from Tiled.
+                    string name = so.gameObject.name;
+                    DestroyImmediate(so.gameObject);
+                    instance.name = name;
                 }
             }
         }
@@ -331,9 +431,15 @@ namespace SuperTiled2Unity.Editor
 
                 customImporter.TmxAssetImported(args);
             }
+            catch (CustomImporterException cie)
+            {
+                ReportError("Custom Importer error: \n  Importer: {0}\n  Message: {1}", customImporter.GetType().Name, cie.Message);
+                Debug.LogErrorFormat("Custom Importer ({0}) exception: {1}", customImporter.GetType().Name, cie.Message);
+            }
             catch (Exception e)
             {
                 ReportError("Custom importer '{0}' threw an exception. Message = '{1}', Stack:\n{2}", customImporter.GetType().Name, e.Message, e.StackTrace);
+                Debug.LogErrorFormat("Custom importer general exception: {0}", e.Message);
             }
         }
     }

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class GroundTriggerCheckScript : MonoBehaviour
 {
-    public BoxCollider2D boxCollider;
+    //public BoxCollider2D boxCollider;
     public bool bIsOnGround = false;
 
     private void Awake()
     {
-        boxCollider = GetComponent<BoxCollider2D>();
+      //  boxCollider = GetComponent<BoxCollider2D>();
     }
 
     //private void Start()
@@ -19,7 +19,11 @@ public class GroundTriggerCheckScript : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-      if(collision.gameObject.GetComponent<GroundScript>() != null)
+      //if(collision.gameObject.GetComponent<GroundScript>() != null || collision.gameObject.layer == 8)
+      //  {
+      //      bIsOnGround = true;
+      //  }
+      if(collision.gameObject.layer == 8)
         {
             bIsOnGround = true;
         }

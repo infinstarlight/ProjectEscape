@@ -16,8 +16,8 @@ namespace SuperTiled2Unity.Editor
         private SerializedProperty m_TilesAsObjects;
         private readonly GUIContent m_TilesAsObjectsContent = new GUIContent("Tiles as Objects", "Place each tile as separate game object. Uses more resources but gives you more control. This is ignored for Isometric maps that are forced to use game objects.");
 
-        private SerializedProperty m_ImportSorting;
-        private readonly GUIContent m_ImportSortingContent = new GUIContent("Layer/Object Sorting", "Choose the sorting order scheme applied to imported layers and objects.");
+        private SerializedProperty m_SortingMode;
+        private readonly GUIContent m_SortingModeContent = new GUIContent("Layer/Object Sorting", "Choose the sorting order scheme applied to imported layers and objects.");
 
         private SerializedProperty m_CustomImporterClassName;
 
@@ -49,24 +49,20 @@ namespace SuperTiled2Unity.Editor
             EditorGUILayout.LabelField("Tiled Map Importer Settings", EditorStyles.boldLabel);
             ShowTiledAssetGui();
 
-            EditorGUI.BeginDisabledGroup(TargetAssetImporter.IsIsometric);
             EditorGUILayout.PropertyField(m_TilesAsObjects, m_TilesAsObjectsContent);
             EditorGUI.EndDisabledGroup();
 
-            if (TargetAssetImporter.IsIsometric)
-            {
-                using (new GuiScopedIndent())
-                {
-                    EditorGUILayout.HelpBox("Note: Isometric maps are forced to display tiles as objects.", MessageType.None);
-                }
-            }
+            m_SortingMode.intValue = (int)(SortingMode)EditorGUILayout.EnumPopup(m_SortingModeContent, (SortingMode)m_SortingMode.intValue);
 
-            m_ImportSorting.intValue = (int)(ImportSorting)EditorGUILayout.EnumPopup(m_ImportSortingContent, (ImportSorting)m_ImportSorting.intValue);
+            if (m_SortingMode.intValue == (int)SortingMode.CustomSortAxis)
+            {
+                EditorGUILayout.HelpBox("Tip: Custom Sort Axis may require you to set a Transparency Sort Axis for cameras in your project Graphics settings.", MessageType.Info);
+            }
 
             EditorGUILayout.Space();
             ShowCustomImporterGui();
 
-            ApplyRevertGUI();
+            InternalApplyRevertGUI();
         }
 
         protected override void ResetValues()
@@ -80,8 +76,8 @@ namespace SuperTiled2Unity.Editor
             m_TilesAsObjects = serializedObject.FindProperty("m_TilesAsObjects");
             Assert.IsNotNull(m_TilesAsObjects);
 
-            m_ImportSorting = serializedObject.FindProperty("m_ImportSorting");
-            Assert.IsNotNull(m_ImportSorting);
+            m_SortingMode = serializedObject.FindProperty("m_SortingMode");
+            Assert.IsNotNull(m_SortingMode);
 
             m_CustomImporterClassName = serializedObject.FindProperty("m_CustomImporterClassName");
             Assert.IsNotNull(m_CustomImporterClassName);
@@ -150,7 +146,7 @@ namespace SuperTiled2Unity.Editor
                         EditorGUILayout.LabelField(t.GetDisplayName());
                     }
 
-                    EditorGUILayout.HelpBox("Auto Importers are custom importers that run on automatically on every exported Tiled map. Order is controlled by the AutoCustomImporterAttribute.", MessageType.None);
+                    EditorGUILayout.HelpBox("Auto Importers are custom importers that run on automatically on every exported Tiled map. Order is controlled by the AutoCustomTmxImporterAttribute.", MessageType.None);
                 }
             }
         }

@@ -32,19 +32,25 @@ public class MovementScript : MonoBehaviour
     private GroundTriggerCheckScript GroundTriggerCheck;
     private ProjSpawnPointScript ProjSpawn;
 
+    private void Awake()
+    {
+        rb2d = GetComponent<Rigidbody2D>();
+
+        ProjSpawn = GetComponentInChildren<ProjSpawnPointScript>();
+        GetAnimator = GetComponent<Animator>();
+        GroundTriggerCheck = GetComponent<GroundTriggerCheckScript>();
+    }
+
 
     // Start is called before the first frame update
     void Start()
     {
 
         CurrentJumpCount = 0;
-        rb2d = GetComponent<Rigidbody2D>();
-
-        ProjSpawn = GetComponentInChildren<ProjSpawnPointScript>();
-        GetAnimator = GetComponent<Animator>();
+        
         CheckMovement();
         halfSpeed = Speed / 2f;
-        GroundTriggerCheck = GetComponentInChildren<GroundTriggerCheckScript>();
+       
     }
 
 

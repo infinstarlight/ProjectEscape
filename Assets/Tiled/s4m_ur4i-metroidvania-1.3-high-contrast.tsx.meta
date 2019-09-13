@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 12f6c6ddd9f364962a342e5fbeeeb11c
+guid: 827857cc96f63a148b8c9fc8688c33f7
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -8,12 +8,18 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: cc34d0f3dc257a442819830b408c5322, type: 3}
-  errors: []
+  missingFiles: []
+  errors:
+  - Invalid rectangle (Tile ID ='68') in tileset 's4m_ur4i-metroidvania-1.3-high-contrast'
+    has zero height
   warnings: []
   missingSortingLayers: []
   missingLayers: []
+  missingTags: []
+  importerVersion: 10
   pixelsPerUnit: 100
   edgesPerEllipse: 32
+  numberOfObjectsImported: 899
   useSpriteAtlas: 1
   atlasWidth: 2048
   atlasHeight: 2048
