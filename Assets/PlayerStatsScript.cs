@@ -4,13 +4,24 @@ using UnityEngine;
 
 public class PlayerStatsScript : MonoBehaviour
 {
+    public enum PlayerMaskType
+    {
+        NoMask,
+        Standard,
+        Alpha,
+        Gamma,
+        Zeta,
+        Omega
+    };
+    
     public bool bDebugStats = false; 
+    public PlayerMaskType CurrentPlayerMask;
     private ID_HealthText healthText;
     private DK_AmmoTextScript DK_AmmoText;
     private PlayerInstrument playerInstrument;
     private PlayerDreamkiss playerDreamkiss;
     public CharacterStatsScript playerStats;
-    private Player player;
+    public Player player;
 
     private void Awake()
     {
@@ -27,6 +38,7 @@ public class PlayerStatsScript : MonoBehaviour
     {
         UpdateHealthText();
         UpdateAmmoText();
+        CurrentPlayerMask = PlayerMaskType.Standard;
     }
 
     // Update is called once per frame
